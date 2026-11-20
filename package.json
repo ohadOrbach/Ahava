@@ -1,0 +1,36 @@
+{
+  "name": "ahava-staff-bot",
+  "version": "1.0.0",
+  "description": "WhatsApp staff-updates bot for Pnimiyat Ahava (MVP + demo simulator)",
+  "scripts": {
+    "start": "TZ=Asia/Jerusalem node --no-warnings=ExperimentalWarning --import tsx src/server.ts",
+    "dev": "TZ=Asia/Jerusalem node --no-warnings=ExperimentalWarning --watch --import tsx src/server.ts",
+    "typecheck": "tsc",
+    "test": "TZ=Asia/Jerusalem node --no-warnings=ExperimentalWarning --import tsx --test test/*.test.ts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ohadOrbach/Ahava.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ohadOrbach/Ahava/issues"
+  },
+  "homepage": "https://github.com/ohadOrbach/Ahava#readme",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.11.0",
+    "@fastify/cookie": "^11.1.5",
+    "@fastify/formbody": "^9.0.2",
+    "@fastify/static": "^10.1.12",
+    "fastify": "^5.12.8",
+    "qrcode": "^1.5.4",
+    "tsx": "^4.23.15",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/qrcode": "^1.5.6",
+    "typescript": "^7.0.2"
+  },
+  "private": true,
+  "type": "module"
+}

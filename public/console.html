@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ahava Bot Demo</title>
+<style>
+:root {
+  --bg: #e9ecea; --panel: #fff; --ink: #1d2b26; --muted: #6b7a74; --line: #d9dfdc; --brand: #0f7a5c;
+  --chat: #efe7dd; --me: #d9fdd3; --bot: #fff; --tpl: #fff6d6; --btn: #0a7cff;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d1210; --panel: #18201d; --ink: #e5ece9; --muted: #95a59f; --line: #2a3632; --brand: #2fb38a;
+    --chat: #0b141a; --me: #005c4b; --bot: #202c33; --tpl: #3a3320; --btn: #53bdeb;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.45 system-ui, "Segoe UI", Arial, sans-serif; background: var(--bg); color: var(--ink); }
+.top { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; padding: 10px 16px; background: var(--brand); color: #fff; position: sticky; top: 0; z-index: 5; }
+.top h1 { font-size: 17px; margin: 0; }
+.clock { font-size: 20px; font-weight: 700; background: rgba(0,0,0,.18); padding: 4px 12px; border-radius: 8px; direction: rtl; }
+.top button, .top input { font: inherit; font-size: 14px; border: 0; border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+.top button { background: rgba(255,255,255,.92); color: #0d3b2e; }
+.top button.warn { background: #ffd8d8; }
+.top input { padding: 5px 6px; }
+.stats { font-size: 13px; opacity: .95; margin-inline-start: auto; }
+.stats b { font-size: 15px; }
+.wrap { display: grid; grid-template-columns: 1fr 380px; gap: 12px; padding: 12px; align-items: start; }
+@media (max-width: 1100px) { .wrap { grid-template-columns: 1fr; } }
+.phones { display: grid; grid-template-columns: repeat(auto-fit, minmax(255px, 1fr)); gap: 10px; }
+.phone { background: var(--panel); border-radius: 18px; border: 1px solid var(--line); display: flex; flex-direction: column; height: 78vh; min-height: 520px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.phone select { font: inherit; width: 100%; border: 0; border-bottom: 1px solid var(--line); padding: 8px 10px; background: var(--panel); color: var(--ink); }
+.ph-head { padding: 6px 12px; font-size: 13px; color: var(--muted); border-bottom: 1px solid var(--line); display: flex; justify-content: space-between; gap: 8px; }
+.chat { flex: 1; overflow-y: auto; background: var(--chat); padding: 10px 8px; display: flex; flex-direction: column; gap: 6px; }
+.msg { max-width: 88%; padding: 6px 9px 4px; border-radius: 10px; box-shadow: 0 1px 1px rgba(0,0,0,.08); white-space: normal; word-wrap: break-word; }
+.msg.out { align-self: flex-start; background: var(--bot); border-start-start-radius: 2px; }
+.msg.in { align-self: flex-end; background: var(--me); border-start-end-radius: 2px; }
+.msg.tpl { background: var(--tpl); }
+.msg .t { font-size: 11px; color: var(--muted); text-align: end; margin-top: 2px; }
+.msg .badge { font-size: 10.5px; color: var(--muted); display: block; margin-bottom: 2px; }
+.btns { display: flex; flex-direction: column; gap: 1px; margin-top: 6px; border-top: 1px solid var(--line); }
+.btns button { font: inherit; background: none; border: 0; color: var(--btn); padding: 7px 4px; cursor: pointer; font-weight: 600; }
+.btns button:hover { background: rgba(0,0,0,.04); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px 8px; border-top: 1px solid var(--line); }
+.chips button, .chips select { font: inherit; font-size: 13px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 999px; padding: 3px 10px; cursor: pointer; max-width: 100%; }
+.compose { display: flex; gap: 6px; padding: 8px; border-top: 1px solid var(--line); }
+.compose textarea { flex: 1; font: inherit; resize: none; height: 40px; border: 1px solid var(--line); border-radius: 20px; padding: 8px 12px; background: var(--panel); color: var(--ink); }
+.compose button { border: 0; border-radius: 50%; width: 40px; height: 40px; background: var(--brand); color: #fff; font-size: 18px; cursor: pointer; }
+.side { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; position: sticky; top: 64px; }
+.tabs { display: flex; border-bottom: 1px solid var(--line); }
+.tabs button { flex: 1; font: inherit; padding: 8px; border: 0; background: none; color: var(--muted); cursor: pointer; }
+.tabs button.on { color: var(--ink); font-weight: 700; box-shadow: inset 0 -2px 0 var(--brand); }
+.side iframe { width: 100%; height: 74vh; border: 0; display: block; background: var(--panel); }
+.log { height: 74vh; overflow-y: auto; padding: 8px 12px; font-size: 13.5px; }
+.log div { padding: 4px 0; border-bottom: 1px solid var(--line); }
+.log time { color: var(--muted); font-size: 12px; margin-inline-end: 6px; }
+.guide { height: 74vh; overflow-y: auto; padding: 8px 16px; font-size: 14px; }
+.guide li { margin-bottom: 6px; }
+.empty { color: var(--muted); text-align: center; margin: auto; font-size: 13px; padding: 20px; }
+</style>
+</head>
+<body>
+<div class="top">
+  <h1>💬 בוט עדכוני צוות · דמו</h1>
+  <div class="clock" id="clock">…</div>
+  <button data-adv="15">+15 דק׳</button>
+  <button data-adv="60">+שעה</button>
+  <button data-adv="180">+3 שעות</button>
+  <button id="nextBriefing">⏭ לתדריך הבוקר הבא</button>
+  <input type="datetime-local" id="jumpTo"><button id="jumpBtn">קפוץ</button>
+  <button id="reset" class="warn">↺ איפוס דמו</button>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="wrap">
+  <div class="phones" id="phones"></div>
+  <aside class="side">
+    <div class="tabs">
+      <button data-tab="admin" class="on">מסך ניהול</button>
+      <button data-tab="log">יומן מערכת</button>
+      <button data-tab="guide">תסריט דמו</button>
+    </div>
+    <div data-pane="admin"><iframe id="admin" title="admin"></iframe></div>
+    <div data-pane="log" class="log" id="log" hidden></div>
+    <div data-pane="guide" class="guide" hidden>
+      <ol>
+        <li><b>תדריך בוקר:</b> לחצו "+15 דק׳". כל הצוות מקבל הודעת תבנית קצרה (בתשלום). לחיצה על "הצג עדכונים" פותחת את התדריך המלא (חינם). חדש מוצג במלואו, ישן בשורה אחת.</li>
+        <li><b>עדכון דחוף:</b> בטלפון של רותם בחרו בדוגמה "דחוף: מחר אין הסעות...". הבוט מציע סוג, יעד ודחיפות. לחצו "פרסם". רק הצוות של גפן ורימון מקבל.</li>
+        <li><b>תיקון:</b> כתבו דוגמה ואז תקנו בחופשיות: "רק לזית", "לא דחוף", "עם אישור קריאה".</li>
+        <li><b>אישור קריאה:</b> נוהל עם "חובה לקרוא ולאשר" + "דחוף". אצל מיכל לחצו "קראתי". במסך הניהול רואים מי אישר. "+3 שעות": תזכורת רק למי שלא אישר.</li>
+        <li><b>שיבוץ:</b> "דני בגפן היום עד הצהריים" ← אשר. דני מקבל עדכון ליחידה. "+שעה" עד אחרי 12:00: דני חוזר לרימון ומקבל תדריך קצר.</li>
+        <li><b>מה עדכני?</b> כל איש צוות יכול לשאול בכל רגע.</li>
+        <li><b>QR על הדלת:</b> בטלפון "מספר חדש" לחצו "📷 סריקת QR" ובחרו יחידה. הבוט שואל שם ושולח בקשה להנהלה. רותם מאשרת ← העובד מקבל נהלים ותדריך.</li>
+        <li><b>עובד זמני:</b> "הוסף זמני ליאת מור 0527654321 עד 15/12 בזית". הגישה נסגרת אוטומטית (אלה גולן מסתיימת הלילה).</li>
+        <li><b>פרטיות:</b> "החניך יוסי מגפן צריך לקבל ריטלין..." ← הבוט מזהיר ומציע ניסוח בלי פרטים.</li>
+        <li><b>אירוע:</b> "⏭ לתדריך הבוקר הבא" ← תזכורת ערב לפני (19:00) ותזכורת ביום.</li>
+      </ol>
+    </div>
+  </aside>
+</div>
+
+<script>
+const SAMPLES = [
+  "דחוף: מחר בבוקר אין הסעות. החניכים של גפן ורימון נשארים בפנימייה עד 10:00",
+  "נוהל חדש, חובה לקרוא ולאשר: כל מתן תרופה נרשם ביומן התרופות של היחידה עם שעה וחתימה. דחוף",
+  "טיול שנתי ביום חמישי ב-08:00, יציאה מהשער הראשי. לגפן ולתאנה",
+  "דני בגפן היום עד הצהריים",
+  "עומר בזית בימי שלישי",
+  "הוסף זמני ליאת מור 0527654321 עד 15/12 בזית",
+  "החניך יוסי מגפן צריך לקבל ריטלין ב-8 בבוקר",
+  "עדכונים פעילים",
+  "שיבוצים",
+];
+const DEFAULTS = ["972520000001", "972520000021", "972520000006", "972529990001"];
+const NEW_NUMBER = "972529990001";
+
+let messages = [], lastId = 0, personas = { staff: [], units: [] }, staffVersion = "", lastLogTop = 0;
+const phones = DEFAULTS.map((p) => ({ phone: p }));
+
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+const fmt = (s) => esc(s).replace(/\*([^*\n]+)\*/g, "<b>$1</b>").replace(/(^|[\s(])_([^_\n]+)_/g, "$1<i>$2</i>").replace(/\n/g, "<br>");
+const disp = (p) => p.startsWith("972") ? ("0" + p.slice(3)).replace(/^(\d{3})/, "$1-") : p;
+const time = (ms) => new Date(ms).toLocaleTimeString("he-IL", { hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jerusalem" });
+const post = (url, body) => fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+
+function personaLabel(s) {
+  const role = s.role === "manager" ? "הנהלה" : ({ fixed: "קבוע", rotating: "מתחלף", temp: "זמני" })[s.kind];
+  const st = s.status === "active" ? "" : ` · ${({ pending: "ממתין", ended: "הסתיים", rejected: "נדחה" })[s.status] || s.status}`;
+  return `${s.name} (${role}${st})`;
+}
+
+function buildPhones() {
+  const root = document.getElementById("phones");
+  root.innerHTML = "";
+  phones.forEach((ph, i) => {
+    const el = document.createElement("div");
+    el.className = "phone";
+    el.innerHTML = `<select></select><div class="ph-head"></div><div class="chat"></div><div class="chips"></div>
+      <div class="compose"><textarea placeholder="הקלידו הודעה..."></textarea><button title="שלח">➤</button></div>`;
+    root.appendChild(el);
+    ph.el = el;
+    const sel = el.querySelector("select");
+    sel.onchange = () => { ph.phone = sel.value; renderPhone(ph); };
+    const ta = el.querySelector("textarea");
+    const send = () => { const t = ta.value.trim(); if (!t) return; ta.value = ""; sendText(ph.phone, t); };
+    el.querySelector(".compose button").onclick = send;
+    ta.onkeydown = (e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); send(); } };
+  });
+  fillSelects();
+  phones.forEach(renderPhone);
+}
+
+function fillSelects() {
+  const groups = [
+    ["הנהלה", personas.staff.filter((s) => s.role === "manager")],
+    ["צוות", personas.staff.filter((s) => s.role === "staff" && s.kind !== "temp")],
+    ["זמניים / מצטרפים", personas.staff.filter((s) => s.role === "staff" && s.kind === "temp")],
+  ];
+  const known = new Set(personas.staff.map((s) => s.phone));
+  for (const ph of phones) {
+    const sel = ph.el.querySelector("select");
+    sel.innerHTML = groups.map(([g, list]) => `<optgroup label="${g}">${list.map((s) => `<option value="${s.phone}">${esc(personaLabel(s))}</option>`).join("")}</optgroup>`).join("")
+      + (known.has(NEW_NUMBER) ? "" : `<optgroup label="לא רשום"><option value="${NEW_NUMBER}">מספר חדש ${disp(NEW_NUMBER)}</option></optgroup>`);
+    sel.value = ph.phone;
+  }
+}
+
+function renderPhone(ph) {
+  const s = personas.staff.find((x) => x.phone === ph.phone);
+  ph.el.querySelector(".ph-head").innerHTML = `<span>${s ? esc(s.name) : "מספר לא רשום"} · ${disp(ph.phone)}</span><span>${s?.role === "manager" ? "👔 מנהל/ת" : s ? "🧑‍🏫 צוות" : "❔"}</span>`;
+  const chat = ph.el.querySelector(".chat");
+  const list = messages.filter((m) => m.phone === ph.phone);
+  chat.innerHTML = list.length ? list.map(msgHtml).join("") : `<div class="empty">אין הודעות עדיין</div>`;
+  chat.querySelectorAll("[data-btn]").forEach((b) => (b.onclick = () => sendButton(ph.phone, JSON.parse(b.dataset.btn))));
+  chat.scrollTop = chat.scrollHeight;
+  const chips = ph.el.querySelector(".chips");
+  const isMgr = s?.role === "manager";
+  chips.innerHTML = (isMgr
+    ? `<select data-samples><option value="">✍️ דוגמאות לכתיבה...</option>${SAMPLES.map((t, i) => `<option value="${i}">${esc(t.length > 44 ? t.slice(0, 44) + "…" : t)}</option>`).join("")}</select>`
+    : `<button data-q="מה עדכני?">מה עדכני?</button><button data-q="נהלים">נהלים</button>`)
+    + `<select data-qr><option value="">📷 סריקת QR</option>${personas.units.map((u) => `<option value="${u.id}">${esc(u.name)}</option>`).join("")}</select>`;
+  chips.querySelectorAll("[data-q]").forEach((b) => (b.onclick = () => sendText(ph.phone, b.dataset.q)));
+  const ss = chips.querySelector("[data-samples]");
+  if (ss) ss.onchange = () => { if (ss.value !== "") { ph.el.querySelector("textarea").value = SAMPLES[ss.value]; ph.el.querySelector("textarea").focus(); } ss.value = ""; };
+  const qr = chips.querySelector("[data-qr]");
+  qr.onchange = () => { const u = personas.units.find((x) => String(x.id) === qr.value); if (u) sendText(ph.phone, `${u.name} – מה עדכני? (קוד ${u.code})`); qr.value = ""; };
+}
+
+function msgHtml(m) {
+  const btns = m.buttons ? JSON.parse(m.buttons) : [];
+  const badge = m.kind === "template" ? `<span class="badge">📄 תבנית מאושרת (${esc(m.template)}) · בתשלום</span>` : m.direction === "out" ? `<span class="badge">💬 הודעה בתוך חלון 24 שעות · חינם</span>` : "";
+  return `<div class="msg ${m.direction} ${m.kind === "template" ? "tpl" : ""}">${badge}<div>${fmt(m.body)}</div>
+    ${btns.length ? `<div class="btns">${btns.map((b) => `<button data-btn='${esc(JSON.stringify(b))}'>${esc(b.title)}</button>`).join("")}</div>` : ""}
+    <div class="t">${time(m.at)}</div></div>`;
+}
+
+async function sendText(phone, text) { await post("/sim/send", { phone, text }); poll(); }
+async function sendButton(phone, button) { await post("/sim/send", { phone, button }); poll(); }
+
+async function loadPersonas() {
+  personas = await (await fetch("/sim/personas")).json();
+  if (phones[0].el) { fillSelects(); phones.forEach(renderPhone); }
+}
+
+let polling = false;
+async function poll() {
+  if (polling) return; polling = true;
+  try {
+    const st = await (await fetch(`/sim/state?after=${lastId}`)).json();
+    document.getElementById("clock").textContent = st.clock;
+    document.getElementById("stats").innerHTML = `תבניות (בתשלום): <b>${st.stats.templates}</b> · הודעות חינם: <b>${st.stats.sessions}</b> · עלות משוערת: <b>$${st.stats.cost}</b> · זיהוי: ${st.llm ? "Claude" : "כללים"}`;
+    if (st.staffVersion !== staffVersion) { staffVersion = st.staffVersion; await loadPersonas(); }
+    if (st.messages.length) {
+      messages.push(...st.messages);
+      lastId = st.messages[st.messages.length - 1].id;
+      const touched = new Set(st.messages.map((m) => m.phone));
+      phones.filter((p) => touched.has(p.phone)).forEach(renderPhone);
+    }
+    document.getElementById("log").innerHTML = st.log.map((l) => `<div><time>${new Date(l.at).toLocaleString("he-IL", { weekday: "short", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Jerusalem" })}</time>${esc(l.text)}</div>`).join("") || `<div class="empty">ריק</div>`;
+    const top = st.log[0]?.id || 0;
+    if (top !== lastLogTop) { lastLogTop = top; refreshAdmin(); }
+  } finally { polling = false; }
+}
+
+function refreshAdmin() {
+  const f = document.getElementById("admin");
+  try {
+    const w = f.contentWindow;
+    const editing = w.document.activeElement && ["INPUT", "SELECT", "TEXTAREA"].includes(w.document.activeElement.tagName);
+    if (!editing && ["/admin", "/admin/today", "/admin/staff"].includes(w.location.pathname)) w.location.reload();
+  } catch {}
+}
+
+document.querySelectorAll("[data-adv]").forEach((b) => (b.onclick = async () => { await post("/sim/clock", { op: "advance", minutes: Number(b.dataset.adv) }); poll(); }));
+document.getElementById("nextBriefing").onclick = async () => { await post("/sim/clock", { op: "next-briefing" }); poll(); };
+document.getElementById("jumpBtn").onclick = async () => { const v = document.getElementById("jumpTo").value; if (v) { await post("/sim/clock", { op: "set", local: v }); poll(); } };
+document.getElementById("reset").onclick = async () => {
+  if (!confirm("לאפס את הדמו לנתוני ההתחלה?")) return;
+  await post("/sim/reset"); messages = []; lastId = 0; staffVersion = "";
+  phones.forEach((p, i) => (p.phone = DEFAULTS[i]));
+  await loadPersonas(); phones.forEach(renderPhone); poll();
+  document.getElementById("admin").src = "/admin";
+};
+document.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => {
+  document.querySelectorAll("[data-tab]").forEach((x) => x.classList.toggle("on", x === b));
+  document.querySelectorAll("[data-pane]").forEach((p) => (p.hidden = p.dataset.pane !== b.dataset.tab));
+}));
+
+(async () => {
+  await loadPersonas();
+  buildPhones();
+  await fetch("/admin/demo-login", { method: "POST" });
+  document.getElementById("admin").src = "/admin";
+  poll();
+  setInterval(poll, 1500);
+})();
+</script>
+</body>
+</html>
