@@ -58,6 +58,19 @@ npm test        # scenario tests on the simulator
 npm run typecheck
 ```
 
+## Promo video
+
+`promo/record.cjs` records the commercial demo from the running system (Hebrew captions, title cards, 1080p MP4):
+
+```bash
+npm start            # in one terminal
+node promo/record.cjs promo/out
+```
+
+## Hosting the demo online
+
+The repo includes a `Dockerfile` and a Render blueprint (`render.yaml`). On render.com: New → Blueprint → choose this repository. It runs one small container (Starter plan, about $7/month) with a 1 GB disk for the database, in demo mode by default. Any Docker host with a persistent volume mounted at `/data` works the same way.
+
 ## Going live (later phase)
 
 1. Meta Business verification and a dedicated phone number (start early: can take days to weeks).

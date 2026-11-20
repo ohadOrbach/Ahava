@@ -1,0 +1,27 @@
+# One-click deploy on Render (render.com): New > Blueprint > pick this repository.
+# The persistent disk keeps the SQLite database across deploys.
+services:
+  - type: web
+    name: ahava-staff-bot
+    runtime: docker
+    plan: starter
+    healthCheckPath: /admin/login
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: DEMO
+        value: "1"          # set to 0 for production with a real WhatsApp number
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: WHATSAPP_TOKEN
+        sync: false
+      - key: WHATSAPP_PHONE_NUMBER_ID
+        sync: false
+      - key: WHATSAPP_VERIFY_TOKEN
+        sync: false
+      - key: WHATSAPP_APP_SECRET
+        sync: false
+      - key: WHATSAPP_DISPLAY_NUMBER
+        sync: false
